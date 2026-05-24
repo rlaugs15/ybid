@@ -1,12 +1,12 @@
 import { QueryProvider } from "@/components/QueryProvider";
+import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
 
-const geistHeading = Geist({subsets:['latin'],variable:'--font-heading'});
+const geistHeading = Geist({ subsets: ["latin"], variable: "--font-heading" });
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,12 +29,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable, geistHeading.variable)}>
-      <body className="min-h-screen">
+    <html
+      lang="ko"
+      className={cn(
+        "h-full",
+        "antialiased",
+        geistSans.variable,
+        geistMono.variable,
+        "font-sans",
+        inter.variable,
+        geistHeading.variable,
+      )}
+    >
+      <body className="min-h-screen bg-background">
         <QueryProvider>
-          <div className="flex flex-col flex-1 w-full font-pretendard bg-white">
+          <div className="flex flex-col flex-1 w-full font-pretendard ">
             {/* 헤더 자리 */}
-            <main className="flex-1 px-4 mx-auto p-6 overflow-y-auto scrollbar-hide w-full flex flex-col max-w-181 web:max-w-360 web:min-w-360">
+            <main className="flex-1 px-4 mx-auto p-6 overflow-y-auto scrollbar-hide w-full flex flex-col max-w-360 min-w-360">
               {children}
             </main>
             {/* 사이드바 */}
