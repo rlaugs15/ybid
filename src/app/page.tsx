@@ -1,4 +1,4 @@
-export default async function HomePage() {
+export default function HomePage() {
   /* const session = await getSession();
 
   if (!session) {
@@ -6,6 +6,5 @@ export default async function HomePage() {
   }
 
   redirect("/dashboard"); */
-
-  return <div>홈페이지</div>;
+  return <div>home</div>;
 }

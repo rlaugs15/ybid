@@ -451,7 +451,7 @@ model auth_users {
   sessions                    sessions[]
   webauthn_challenges         webauthn_challenges[]
   webauthn_credentials        webauthn_credentials[]
-  users                       public_users?
+  users                       users?
 
   @@index([created_at(sort: Desc)], map: "idx_users_created_at_desc")
   @@index([email], map: "idx_users_email")
@@ -525,8 +525,8 @@ model companies {
   archived_at                        DateTime            @default(now()) @db.Timestamptz(6)
   archived_by                        String?             @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   archive_reason                     String?
-  users_companies_archived_byTousers public_users?       @relation("companies_archived_byTousers", fields: [archived_by], references: [id])
-  users_companies_owner_idTousers    public_users        @relation("companies_owner_idTousers", fields: [owner_id], references: [id])
+  users_companies_archived_byTousers users?              @relation("companies_archived_byTousers", fields: [archived_by], references: [id])
+  users_companies_owner_idTousers    users               @relation("companies_owner_idTousers", fields: [owner_id], references: [id])
   teams                              teams?              @relation(fields: [team_id], references: [id])
   contact_histories                  contact_histories[]
   notifications                      notifications[]
@@ -537,14 +537,14 @@ model companies {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model contact_histories {
-  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at   DateTime      @default(now()) @db.Timestamptz(6)
-  company_id   String        @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id      String?       @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  company_id   String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id      String?   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   content      String
-  contacted_at DateTime      @default(now()) @db.Timestamptz(6)
-  companies    companies     @relation(fields: [company_id], references: [id], onDelete: Cascade)
-  users        public_users? @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  contacted_at DateTime  @default(now()) @db.Timestamptz(6)
+  companies    companies @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  users        users?    @relation(fields: [user_id], references: [id])
 
   @@schema("public")
 }
@@ -552,19 +552,19 @@ model contact_histories {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model monthly_top_sales {
-  id                                        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at                                DateTime      @default(now()) @db.Timestamptz(6)
-  updated_at                                DateTime      @default(now()) @db.Timestamptz(6)
+  id                                        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at                                DateTime @default(now()) @db.Timestamptz(6)
+  updated_at                                DateTime @default(now()) @db.Timestamptz(6)
   year                                      Int
   month                                     Int
-  user_id                                   String?       @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                                   String?  @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   display_text                              String
-  is_visible                                Boolean       @default(true)
-  created_by                                String?       @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  updated_by                                String?       @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  users_monthly_top_sales_created_byTousers public_users? @relation("monthly_top_sales_created_byTousers", fields: [created_by], references: [id], onDelete: SetNull)
-  users_monthly_top_sales_updated_byTousers public_users? @relation("monthly_top_sales_updated_byTousers", fields: [updated_by], references: [id])
-  users_monthly_top_sales_user_idTousers    public_users? @relation("monthly_top_sales_user_idTousers", fields: [user_id], references: [id], onDelete: SetNull)
+  is_visible                                Boolean  @default(true)
+  created_by                                String?  @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  updated_by                                String?  @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  users_monthly_top_sales_created_byTousers users?   @relation("monthly_top_sales_created_byTousers", fields: [created_by], references: [id])
+  users_monthly_top_sales_updated_byTousers users?   @relation("monthly_top_sales_updated_byTousers", fields: [updated_by], references: [id])
+  users_monthly_top_sales_user_idTousers    users?   @relation("monthly_top_sales_user_idTousers", fields: [user_id], references: [id])
 
   @@schema("public")
 }
@@ -573,40 +573,40 @@ model monthly_top_sales {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model notifications {
-  id         String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at DateTime      @default(now()) @db.Timestamptz(6)
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime   @default(now()) @db.Timestamptz(6)
   type       String
   title      String
   content    String
-  company_id String?       @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  actor_id   String?       @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  read_at    DateTime?     @db.Timestamptz(6)
-  users      public_users? @relation(fields: [actor_id], references: [id])
-  companies  companies?    @relation(fields: [company_id], references: [id])
+  company_id String?    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actor_id   String?    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  read_at    DateTime?  @db.Timestamptz(6)
+  users      users?     @relation(fields: [actor_id], references: [id])
+  companies  companies? @relation(fields: [company_id], references: [id])
 
   @@schema("public")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model teams {
-  id         String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at DateTime       @default(now()) @db.Timestamptz(6)
+  id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime    @default(now()) @db.Timestamptz(6)
   name       String
   companies  companies[]
-  users      public_users[]
+  users      users[]
 
   @@schema("public")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model public_users {
-  id                                                    String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+model users {
+  id                                                    String              @id @db.Uuid
   created_at                                            DateTime            @default(now()) @db.Timestamptz(6)
   name                                                  String
   email                                                 String
-  role                                                  String
-  team_id                                               String?             @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  role                                                  String              @default("member")
+  team_id                                               String?             @default(dbgenerated("'b174b77a-784a-4c43-b26c-cf5a16d6f08d'::uuid")) @db.Uuid
   companies_companies_archived_byTousers                companies[]         @relation("companies_archived_byTousers")
   companies_companies_owner_idTousers                   companies[]         @relation("companies_owner_idTousers")
   contact_histories                                     contact_histories[]
@@ -615,9 +615,8 @@ model public_users {
   monthly_top_sales_monthly_top_sales_user_idTousers    monthly_top_sales[] @relation("monthly_top_sales_user_idTousers")
   notifications                                         notifications[]
   users                                                 auth_users          @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  teams                                                 teams?              @relation(fields: [team_id], references: [id], onDelete: SetNull)
+  teams                                                 teams?              @relation(fields: [team_id], references: [id])
 
-  @@map("users")
   @@schema("public")
 }
 
