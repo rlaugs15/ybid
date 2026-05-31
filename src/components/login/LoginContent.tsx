@@ -1,4 +1,4 @@
-import { getUser } from "@/services/user.api";
+import { getUser } from "@/services/actions/user.api";
 
 export default async function LoginContent() {
   const user = await getUser();
