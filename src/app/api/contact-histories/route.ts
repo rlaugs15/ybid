@@ -1,6 +1,6 @@
 // 연락 완료 / 연락 히스토리 등록 API
 
-import { getUser } from "@/services/user.api";
+import { getUser } from "@/services/actions/user.api";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 

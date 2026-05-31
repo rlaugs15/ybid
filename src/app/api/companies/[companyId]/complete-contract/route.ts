@@ -1,7 +1,7 @@
 // 계약 완료 처리 api
 
 import { canEditCompany } from "@/lib/permissions/company";
-import { getUser } from "@/services/user.api";
+import { getUser } from "@/services/actions/user.api";
 import { NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 

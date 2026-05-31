@@ -1,7 +1,7 @@
 // 대시보드 API
 
 import { isAdmin } from "@/lib/permissions/company";
-import { getUser } from "@/services/user.api";
+import { getUser } from "@/services/actions/user.api";
 import { NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 

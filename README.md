@@ -29,3 +29,33 @@ GET /api/team/members?year=2026&month=5
 
 // 1등 직원 조회
 GET /api/top-sales?year=2026&month=5
+
+## 업체 수정 시 캐시 무효화
+
+```typescript
+revalidateTag(CACHE_TAGS.COMPANY);
+
+revalidateTag(CACHE_TAGS.COMPANY_LIST);
+
+revalidateTag(CACHE_TAGS.DASHBOARD);
+
+revalidateTag(CACHE_TAGS.SCHEDULE);
+```
+
+## 계약 완료 시 캐시 무효화
+
+```typescript
+revalidateTag(CACHE_TAGS.COMPANY);
+
+revalidateTag(CACHE_TAGS.COMPANY_LIST);
+
+revalidateTag(CACHE_TAGS.CONTRACT);
+
+revalidateTag(CACHE_TAGS.CONTRACT_MONTHLY);
+
+revalidateTag(CACHE_TAGS.DASHBOARD);
+
+revalidateTag(CACHE_TAGS.TOP_SALES);
+
+revalidateTag(CACHE_TAGS.NOTIFICATION);
+```

@@ -1,6 +1,6 @@
 // 월별 계약 완료 현황 API
 
-import { getUser } from "@/services/user.api";
+import { getUser } from "@/services/actions/user.api";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 

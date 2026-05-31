@@ -1,7 +1,7 @@
 // 팀원별 현황 API
 
 import { isAdmin } from "@/lib/permissions/company";
-import { getUser } from "@/services/user.api";
+import { getUser } from "@/services/actions/user.api";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 

@@ -1,4 +1,4 @@
-import { getUser } from "@/services/user.api";
+import { getUser } from "@/services/actions/user.api";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 
