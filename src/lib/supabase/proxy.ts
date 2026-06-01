@@ -38,20 +38,32 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  if (pathname === "/login") {
-    return NextResponse.next();
-  }
-
   // Supabase 인증 체크
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // 로그인 페이지 접근 처리
+  if (pathname === "/login") {
+    // 이미 로그인한 경우 홈으로 이동
+    if (user) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
+
+    // 비로그인 사용자는 로그인 페이지 허용
+    return supabaseResponse;
+  }
+
+  // 로그인 안 된 경우 로그인 페이지로 이동
   if (!user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
+
+  return supabaseResponse;
 
   // 반드시 supabaseResponse를 그대로 반환해야 함
   // 만약 새로운 응답 객체를 만들 경우 다음을 지켜야 함:
@@ -59,6 +71,4 @@ export async function updateSession(request: NextRequest) {
   // 2. supabaseResponse의 쿠키를 그대로 복사할 것 → res.cookies.setAll(...)
   // 3. 쿠키 정보는 절대 누락되지 않게 주의할 것
   // 4. 최종적으로 새로 만든 응답(res)을 반환할 것
-
-  return supabaseResponse;
 }
