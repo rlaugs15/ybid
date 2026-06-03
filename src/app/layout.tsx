@@ -55,7 +55,7 @@ export default function RootLayout({
             <TooltipProvider>
               <SidebarProvider>
                 <AppSidebar />
-                <main className="mt-17.5 h-3000 flex-1 px-4 mx-auto p-6 overflow-y-auto scrollbar-hide w-full flex flex-col max-w-360 min-w-360">
+                <main className="mt-17.5 flex-1 px-4 mx-auto p-6 overflow-y-auto scrollbar-hide w-full flex flex-col max-w-360 min-w-360">
                   {children}
                 </main>
               </SidebarProvider>

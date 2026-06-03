@@ -16,3 +16,19 @@ export function safeKey(...args: (string | number | undefined | null)[]) {
     .filter((v): v is string | number => v !== undefined && v !== null)
     .map((v) => String(v));
 }
+
+export const getInterestBadgeStyle = (priority: "high" | "medium" | "low") => {
+  switch (priority) {
+    case "high":
+      return "bg-red-100 text-red-700 border-red-200";
+
+    case "medium":
+      return "bg-amber-100 text-amber-700 border-amber-200";
+
+    case "low":
+      return "bg-slate-100 text-slate-600 border-slate-200";
+
+    default:
+      return "";
+  }
+};
