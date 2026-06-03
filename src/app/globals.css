@@ -101,6 +101,30 @@
 
   --background-glass: rgba(255, 255, 255, 0.55);
 
+  /* Primary */
+  --color-primary-50: #f8fafc;
+  --color-primary-50: #eff4ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-300: #b7c9ff;
+  --color-primary-500: #3882f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+
+  /* Success */
+  --color-success-50: #ecfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-500: #10b981;
+
+  /* Warning */
+  --color-warning-50: #fff8eb;
+  --color-warning-100: #fef3c7;
+  --color-warning-500: #f59e0b;
+
+  /* Error */
+  --color-error-50: #fef2f2;
+  --color-error-100: #fee2e2;
+  --color-error-500: #ef4444;
+
   /* Blur */
   --blur-glass-light: 12px;
   --blur-glass-strong: 24px;
@@ -152,11 +176,11 @@
   --chart-4: oklch(0.488 0.243 264.376);
   --chart-5: oklch(0.424 0.199 265.638);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: #ffffff;
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.546 0.245 262.881);
+  --sidebar-primary: #ebedf6;
   --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
-  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent: #e3ebff;
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
