@@ -1,10 +1,12 @@
-export default function HomePage() {
-  /* const session = await getSession();
+import { getUser } from "@/services/actions/user.api";
+import { redirect } from "next/navigation";
 
-  if (!session) {
+export default async function HomePage() {
+  const user = await getUser();
+
+  if (!user) {
     redirect("/login");
   }
 
-  redirect("/dashboard"); */
-  return <div>home</div>;
+  redirect("/dashboard");
 }

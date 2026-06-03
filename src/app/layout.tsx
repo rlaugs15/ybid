@@ -1,4 +1,8 @@
+import AppSidebar from "@/components/AppSidebar";
+import Header from "@/components/common/Header";
 import { QueryProvider } from "@/components/QueryProvider";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
@@ -45,10 +49,17 @@ export default function RootLayout({
         <QueryProvider>
           <div className="flex flex-col flex-1 w-full font-pretendard ">
             {/* 헤더 자리 */}
-            <main className="flex-1 px-4 mx-auto p-6 overflow-y-auto scrollbar-hide w-full flex flex-col max-w-360 min-w-360">
-              {children}
-            </main>
+            <Header />
+
             {/* 사이드바 */}
+            <TooltipProvider>
+              <SidebarProvider>
+                <AppSidebar />
+                <main className="mt-17.5 h-3000 flex-1 px-4 mx-auto p-6 overflow-y-auto scrollbar-hide w-full flex flex-col max-w-360 min-w-360">
+                  {children}
+                </main>
+              </SidebarProvider>
+            </TooltipProvider>
           </div>
         </QueryProvider>
       </body>
