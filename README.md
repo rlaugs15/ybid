@@ -1,34 +1,49 @@
 ## API 요약 예시
 
-// 내 업체 목록
-GET /api/companies?scope=mine
+app/api/companies/route.ts
 
-// 전체 영업 현황
-GET /api/companies?scope=all
+- GET: 업체 목록 조회
+- POST: 업체 등록
 
-// 관심도 높음만 조회
-GET /api/companies?interestLevel=high
+app/api/companies/[companyId]/route.ts
 
-// 계약 전 업체만 조회
-GET /api/companies?isContracted=false
+- GET: 업체 상세 조회
+- PATCH: 업체 수정
+- DELETE: 업체 삭제 또는 보관 처리
 
-// 특정 날짜 연락 예정
-GET /api/contacts/schedules?date=2026-05-22
+app/api/companies/[companyId]/contract/route.ts
 
-// 지난 연락 미처리
-GET /api/contacts/schedules?status=overdue
+- PATCH: 계약 완료 / 계약 취소 처리
 
-// 2026년 5월 계약 완료 현황
-GET /api/contracts/monthly?year=2026&month=5
+app/api/companies/[companyId]/contact-histories/route.ts
 
-// 특정 직원의 2026년 5월 계약 완료 현황
-GET /api/contracts/monthly?year=2026&month=5&ownerId=USER_ID
+- GET: 연락 기록 조회
+- POST: 연락 기록 추가
 
-// 팀원별 현황
-GET /api/team/members?year=2026&month=5
+app/api/contact-schedules/route.ts
 
-// 1등 직원 조회
-GET /api/top-sales?year=2026&month=5
+- GET: 연락 예정 목록 조회
+
+app/api/contact-schedules/calendar/route.ts
+
+- GET: 월별 날짜별 연락 예정 업체 수 조회
+
+app/api/contracts/monthly/route.ts
+
+- GET: 월별 계약 완료 현황 조회
+
+app/api/dashboard/route.ts
+
+- GET: 대시보드 요약 데이터 조회
+
+app/api/monthly-top-sales/route.ts
+
+- GET: 헤더 1등 직원 조회
+- POST: 1등 직원 등록/수정
+
+app/api/notifications/route.ts
+
+- GET: 알림 목록 조회
 
 ## 업체 수정 시 캐시 무효화
 
