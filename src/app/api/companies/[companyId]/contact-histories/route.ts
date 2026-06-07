@@ -1,3 +1,6 @@
+import { verifyCompanyPermission } from "@/lib/company-permission";
+import { getUser } from "@/services/actions/user/user.api";
+import { CreateContactHistoryRequest } from "@/types/contact-history";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 
@@ -43,13 +46,6 @@ export async function GET(_: NextRequest, context: RouteContext) {
   });
 }
 
-type CreateContactHistoryRequest = {
-  content: string;
-  userId: string;
-  nextContactDate?: string;
-  nextContactMemo?: string;
-};
-
 /* 응답 예시
 {
   "success": true,
@@ -61,7 +57,23 @@ type CreateContactHistoryRequest = {
 } */
 
 export async function POST(request: NextRequest, context: RouteContext) {
+  const authUser = await getUser();
+
+  if (!authUser) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Unauthorized",
+      },
+      {
+        status: 401,
+      },
+    );
+  }
+
   const { companyId } = await context.params;
+
+  await verifyCompanyPermission(companyId, authUser);
 
   const body = (await request.json()) as CreateContactHistoryRequest;
 
@@ -82,7 +94,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       data: {
         company_id: companyId,
 
-        user_id: body.userId,
+        user_id: authUser.id,
 
         content: body.content,
       },
@@ -109,7 +121,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
           memo: body.nextContactMemo,
 
-          created_by: body.userId,
+          created_by: authUser.id,
         },
       });
     }

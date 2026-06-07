@@ -1,3 +1,5 @@
+import { verifyCompanyPermission } from "@/lib/company-permission";
+import { getUser } from "@/services/actions/user/user.api";
 import { UpdateCompanyRequest } from "@/types/company";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
@@ -72,7 +74,20 @@ export async function GET(_: NextRequest, context: RouteContext) {
 }
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
+  const authUser = await getUser();
+  if (!authUser) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Unauthorized",
+      },
+      { status: 401 },
+    );
+  }
+
   const { companyId } = await context.params;
+
+  await verifyCompanyPermission(companyId, authUser);
 
   const body = (await request.json()) as UpdateCompanyRequest;
 
@@ -148,7 +163,21 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 }
 
 export async function DELETE(_: NextRequest, context: RouteContext) {
+  const authUser = await getUser();
+
+  if (!authUser) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Unauthorized",
+      },
+      { status: 401 },
+    );
+  }
+
   const { companyId } = await context.params;
+
+  await verifyCompanyPermission(companyId, authUser);
 
   await prisma.companies.update({
     where: {

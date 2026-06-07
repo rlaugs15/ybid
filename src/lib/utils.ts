@@ -1,6 +1,5 @@
 import { Prisma, users } from "@/generated/prisma/client";
 import { clsx, type ClassValue } from "clsx";
-import prisma from "prisma/prisma";
 import { twMerge } from "tailwind-merge";
 import { UserRole } from "./permissions/company";
 
@@ -55,7 +54,10 @@ export function canManageTopSales(role: UserRole) {
 }
 
 /* 업체 수정 권한 */
-export function canEditCompany(currentUser: users, ownerUser: users) {
+export function canEditCompany(
+  currentUser: Pick<users, "id" | "team_id" | "role">,
+  ownerUser: users,
+) {
   if (currentUser.role === "admin") {
     return true;
   }
@@ -86,39 +88,4 @@ export function getCompanyScope(currentUser: users): Prisma.companiesWhereInput 
   return {
     owner_id: currentUser.id,
   };
-}
-
-/* 업체 수정 권한 검증 */
-export async function verifyCompanyPermission(companyId: string, currentUserId: string) {
-  const company = await prisma.companies.findUnique({
-    where: {
-      id: companyId,
-    },
-
-    include: {
-      users_companies_owner_idTousers: true,
-    },
-  });
-
-  if (!company) {
-    throw new Error("업체를 찾을 수 없습니다.");
-  }
-
-  const currentUser = await prisma.users.findUnique({
-    where: {
-      id: currentUserId,
-    },
-  });
-
-  if (!currentUser) {
-    throw new Error("사용자를 찾을 수 없습니다.");
-  }
-
-  const allowed = canEditCompany(currentUser, company.users_companies_owner_idTousers);
-
-  if (!allowed) {
-    throw new Error("수정 권한이 없습니다.");
-  }
-
-  return company;
 }
