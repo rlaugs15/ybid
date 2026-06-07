@@ -1,4 +1,4 @@
-export type UserRole = "member" | "leader" | "owner";
+export type UserRole = "member" | "leader" | "admin";
 
 /**
  * 업체 수정 권한 체크

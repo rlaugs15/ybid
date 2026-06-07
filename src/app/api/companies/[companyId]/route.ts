@@ -1,190 +1,166 @@
-// src/app/api/companies/[companyId]/route.ts
-
-import { canEditCompany } from "@/lib/permissions/company";
-import { getUser } from "@/services/actions/user.api";
+import { UpdateCompanyRequest } from "@/types/company";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 
-export async function GET(
-  _request: NextRequest,
-  {
-    params,
-  }: {
-    params: Promise<{ companyId: string }>;
-  },
-) {
-  const { companyId } = await params;
+type RouteContext = {
+  params: Promise<{
+    companyId: string;
+  }>;
+};
+
+export async function GET(_: NextRequest, context: RouteContext) {
+  const { companyId } = await context.params;
 
   const company = await prisma.companies.findUnique({
     where: {
       id: companyId,
     },
     include: {
-      users_companies_owner_idTousers: true,
+      business_licenses: {
+        orderBy: {
+          created_at: "asc",
+        },
+      },
+
+      users_companies_owner_idTousers: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      },
+
       teams: true,
+
       contact_histories: {
         include: {
-          users: true,
+          users: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
         orderBy: {
           contacted_at: "desc",
+        },
+      },
+
+      contact_schedules: {
+        orderBy: {
+          scheduled_at: "asc",
         },
       },
     },
   });
 
   if (!company) {
-    return NextResponse.json({ message: "Not Found" }, { status: 404 });
+    return NextResponse.json(
+      {
+        success: false,
+        message: "업체를 찾을 수 없습니다.",
+      },
+      { status: 404 },
+    );
   }
 
-  return NextResponse.json(company);
+  return NextResponse.json({
+    success: true,
+    data: company,
+  });
 }
 
-export async function PATCH(
-  request: NextRequest,
-  {
-    params,
-  }: {
-    params: Promise<{ companyId: string }>;
-  },
-) {
-  const user = await getUser();
+export async function PATCH(request: NextRequest, context: RouteContext) {
+  const { companyId } = await context.params;
 
-  if (!user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
+  const body = (await request.json()) as UpdateCompanyRequest;
 
-  const { companyId } = await params;
-  const body = await request.json();
+  const company = await prisma.$transaction(async (tx) => {
+    const updatedCompany = await tx.companies.update({
+      where: {
+        id: companyId,
+      },
+      data: {
+        name: body.name,
+        ceo_name: body.ceoName,
+        ceo_phone: body.ceoPhone,
+        region: body.region,
 
-  const company = await prisma.companies.findUnique({
-    where: {
-      id: companyId,
-    },
-    include: {
-      users_companies_owner_idTousers: true,
-    },
+        interest_level: body.interestLevel,
+        sales_status: body.salesStatus,
+        memo: body.memo,
+
+        team_id: body.teamId,
+      },
+    });
+
+    if (body.businessLicenses) {
+      await tx.company_business_licenses.deleteMany({
+        where: {
+          company_id: companyId,
+        },
+      });
+
+      await tx.company_business_licenses.createMany({
+        data: body.businessLicenses.map((license, index) => ({
+          company_id: companyId,
+
+          business_group: license.businessGroup,
+
+          business_type: license.businessType,
+
+          specialty_type: license.specialtyType ?? null,
+
+          is_primary: license.isPrimary ?? index === 0,
+        })),
+      });
+    }
+
+    if (body.contactSchedule) {
+      await tx.contact_schedules.deleteMany({
+        where: {
+          company_id: companyId,
+          completed: false,
+        },
+      });
+
+      await tx.contact_schedules.create({
+        data: {
+          company_id: companyId,
+
+          scheduled_at: new Date(body.contactSchedule.scheduledAt),
+
+          memo: body.contactSchedule.memo,
+
+          created_by: updatedCompany.owner_id,
+        },
+      });
+    }
+
+    return updatedCompany;
   });
 
-  if (!company) {
-    return NextResponse.json({ message: "Not Found" }, { status: 404 });
-  }
-
-  // 업체 수정 권한 체크, 현재 로그인 한 사용자와 담당자
-  const editable = canEditCompany({
-    currentUser: user,
-    companyOwner: company.users_companies_owner_idTousers,
+  return NextResponse.json({
+    success: true,
+    data: company,
   });
+}
 
-  if (!editable) {
-    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
-  }
+export async function DELETE(_: NextRequest, context: RouteContext) {
+  const { companyId } = await context.params;
 
-  const updatedCompany = await prisma.companies.update({
+  await prisma.companies.update({
     where: {
       id: companyId,
     },
     data: {
-      /**
-       * 업체명
-       *
-       * 타입:
-       * - string | undefined
-       */
-      name: body.name,
-
-      /**
-       * 대표자명
-       *
-       * 타입:
-       * - string | undefined
-       */
-      ceo_name: body.ceoName,
-
-      /**
-       * 업종
-       *
-       * 타입:
-       * - string | undefined
-       */
-      business_type: body.businessType,
-
-      /**
-       * 지역
-       *
-       * 타입:
-       * - string | undefined
-       */
-      region: body.region,
-
-      /**
-       * 업체 담당자명
-       *
-       * 타입:
-       * - string | undefined
-       */
-      manager_name: body.managerName,
-
-      /**
-       * 업체 담당자 연락처
-       *
-       * 타입:
-       * - string | undefined
-       */
-      manager_phone: body.managerPhone,
-
-      /**
-       * 업체 담당자 이메일
-       *
-       * 타입:
-       * - string | undefined
-       */
-      manager_email: body.managerEmail,
-
-      /**
-       * 관심도
-       *
-       * 타입:
-       * - "high" | "medium" | "low" | undefined
-       */
-      interest_level: body.interestLevel,
-
-      /**
-       * 영업 상태
-       *
-       * 타입:
-       * - "new"
-       * - "in_progress"
-       * - "reviewing"
-       * - "hold"
-       * - "contracted"
-       * - "failed"
-       * - undefined
-       */
-      sales_status: body.salesStatus,
-
-      /**
-       * 다음 연락 예정일
-       *
-       * 타입:
-       * - string | null | undefined
-       *
-       * 예시:
-       * - "2026-05-22"
-       */
-      next_contact_date: body.nextContactDate ? new Date(body.nextContactDate) : null,
-
-      /**
-       * 메모
-       *
-       * 타입:
-       * - string | undefined
-       */
-      memo: body.memo,
-
-      updated_at: new Date(),
+      is_archived: true,
+      archived_at: new Date(),
     },
   });
 
-  return NextResponse.json(updatedCompany);
+  return NextResponse.json({
+    success: true,
+  });
 }

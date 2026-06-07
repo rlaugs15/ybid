@@ -17,10 +17,10 @@ export type Database = {
       companies: {
         Row: {
           archive_reason: string | null
-          archived_at: string
+          archived_at: string | null
           archived_by: string | null
-          business_type: string | null
           ceo_name: string | null
+          ceo_phone: string | null
           contract_duration_days: number | null
           contract_memo: string | null
           contracted_at: string | null
@@ -28,13 +28,8 @@ export type Database = {
           id: string
           interest_level: string
           is_archived: boolean
-          is_contracted: boolean
-          manager_email: string | null
-          manager_name: string | null
-          manager_phone: string | null
           memo: string | null
           name: string
-          next_contact_date: string | null
           owner_id: string
           region: string | null
           sales_status: string
@@ -43,10 +38,10 @@ export type Database = {
         }
         Insert: {
           archive_reason?: string | null
-          archived_at?: string
+          archived_at?: string | null
           archived_by?: string | null
-          business_type?: string | null
           ceo_name?: string | null
+          ceo_phone?: string | null
           contract_duration_days?: number | null
           contract_memo?: string | null
           contracted_at?: string | null
@@ -54,14 +49,9 @@ export type Database = {
           id?: string
           interest_level?: string
           is_archived?: boolean
-          is_contracted?: boolean
-          manager_email?: string | null
-          manager_name?: string | null
-          manager_phone?: string | null
           memo?: string | null
           name: string
-          next_contact_date?: string | null
-          owner_id?: string
+          owner_id: string
           region?: string | null
           sales_status?: string
           team_id?: string | null
@@ -69,10 +59,10 @@ export type Database = {
         }
         Update: {
           archive_reason?: string | null
-          archived_at?: string
+          archived_at?: string | null
           archived_by?: string | null
-          business_type?: string | null
           ceo_name?: string | null
+          ceo_phone?: string | null
           contract_duration_days?: number | null
           contract_memo?: string | null
           contracted_at?: string | null
@@ -80,13 +70,8 @@ export type Database = {
           id?: string
           interest_level?: string
           is_archived?: boolean
-          is_contracted?: boolean
-          manager_email?: string | null
-          manager_name?: string | null
-          manager_phone?: string | null
           memo?: string | null
           name?: string
-          next_contact_date?: string | null
           owner_id?: string
           region?: string | null
           sales_status?: string
@@ -117,6 +102,44 @@ export type Database = {
           },
         ]
       }
+      company_business_licenses: {
+        Row: {
+          business_group: string
+          business_type: string
+          company_id: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          specialty_type: string | null
+        }
+        Insert: {
+          business_group: string
+          business_type: string
+          company_id: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          specialty_type?: string | null
+        }
+        Update: {
+          business_group?: string
+          business_type?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          specialty_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_business_licenses_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_histories: {
         Row: {
           company_id: string
@@ -127,7 +150,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
-          company_id?: string
+          company_id: string
           contacted_at?: string
           content: string
           created_at?: string
@@ -153,6 +176,51 @@ export type Database = {
           {
             foreignKeyName: "contact_histories_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_schedules: {
+        Row: {
+          company_id: string
+          completed: boolean
+          completed_at: string | null
+          created_by: string
+          id: string
+          memo: string | null
+          scheduled_at: string
+        }
+        Insert: {
+          company_id: string
+          completed?: boolean
+          completed_at?: string | null
+          created_by: string
+          id: string
+          memo?: string | null
+          scheduled_at: string
+        }
+        Update: {
+          company_id?: string
+          completed?: boolean
+          completed_at?: string | null
+          created_by?: string
+          id?: string
+          memo?: string | null
+          scheduled_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_schedules_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_schedules_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -220,6 +288,39 @@ export type Database = {
           },
         ]
       }
+      notification_reads: {
+        Row: {
+          notification_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          notification_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          notification_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_reads_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_reads_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           actor_id: string | null
@@ -227,7 +328,6 @@ export type Database = {
           content: string
           created_at: string
           id: string
-          read_at: string | null
           title: string
           type: string
         }
@@ -237,7 +337,6 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
-          read_at?: string | null
           title: string
           type: string
         }
@@ -247,7 +346,6 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
-          read_at?: string | null
           title?: string
           type?: string
         }

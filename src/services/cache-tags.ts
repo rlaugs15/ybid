@@ -1,21 +1,21 @@
 export const CACHE_TAGS = {
-  COMPANY: "company",
-  COMPANY_LIST: "company-list",
-
-  DASHBOARD: "dashboard",
-
-  CONTRACT: "contract",
-  CONTRACT_MONTHLY: "contract-monthly",
-
-  SCHEDULE: "schedule",
-
-  TEAM: "team",
-
-  TOP_SALES: "top-sales",
-
-  NOTIFICATION: "notification",
-
-  CONTACT_HISTORY: "contact-history",
-
   ME: "me",
+
+  companies: "companies",
+
+  company: (companyId: string) => `company:${companyId}`,
+
+  contactHistories: (companyId: string) => `contact-histories:${companyId}`,
+
+  contactSchedules: "contact-schedules",
+
+  contactScheduleCalendar: "contact-schedule-calendar",
+
+  contractsMonthly: "contracts-monthly",
+
+  dashboard: (userId: string) => `dashboard:${userId}`,
+
+  monthlyTopSales: "monthly-top-sales",
+
+  notifications: (userId: string) => `notifications:${userId}`,
 } as const;

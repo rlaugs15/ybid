@@ -1,90 +1,155 @@
-// 대시보드 API
-
-import { isAdmin } from "@/lib/permissions/company";
-import { getUser } from "@/services/actions/user.api";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 
-export async function GET() {
-  const user = await getUser();
+export async function GET(request: NextRequest) {
+  const userId = request.nextUrl.searchParams.get("userId");
+
+  if (!userId) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "userId는 필수입니다.",
+      },
+      { status: 400 },
+    );
+  }
+
+  const user = await prisma.users.findUnique({
+    where: {
+      id: userId,
+    },
+  });
 
   if (!user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      {
+        success: false,
+        message: "사용자를 찾을 수 없습니다.",
+      },
+      { status: 404 },
+    );
   }
 
-  const today = new Date().toISOString().slice(0, 10);
-  const todayDate = new Date(today);
+  const today = new Date();
 
-  const monthStart = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-  const monthEnd = new Date(todayDate.getFullYear(), todayDate.getMonth() + 1, 1);
+  const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
-  const myCompanies = await prisma.companies.findMany({
-    where: {
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+
+  let companyWhere = {};
+
+  if (user.role === "member") {
+    companyWhere = {
       owner_id: user.id,
-      is_archived: false,
-    },
-  });
-
-  const todayContacts = myCompanies.filter(
-    (company) => company.next_contact_date?.toISOString().slice(0, 10) === today,
-  );
-
-  const overdueContacts = myCompanies.filter(
-    (company) =>
-      company.next_contact_date && company.next_contact_date < todayDate && !company.is_contracted,
-  );
-
-  const monthlyContracts = myCompanies.filter(
-    (company) =>
-      company.contracted_at &&
-      company.contracted_at >= monthStart &&
-      company.contracted_at < monthEnd,
-  );
-
-  const highInterestCompanies = myCompanies.filter((company) => company.interest_level === "high");
-
-  const response = {
-    mySummary: {
-      myCompanyCount: myCompanies.length,
-      todayContactCount: todayContacts.length,
-      overdueContactCount: overdueContacts.length,
-      monthlyContractCount: monthlyContracts.length,
-      highInterestCount: highInterestCompanies.length,
-    },
-
-    todayContacts,
-  };
-
-  if (!isAdmin(user.role)) {
-    return NextResponse.json(response);
+    };
   }
 
-  const allCompanies = await prisma.companies.findMany({
-    where: {
-      is_archived: false,
-    },
-  });
+  if (user.role === "leader") {
+    companyWhere = {
+      team_id: user.team_id,
+    };
+  }
 
-  const adminSummary = {
-    totalCompanyCount: allCompanies.length,
+  const [
+    myCompanyCount,
+    highInterestCount,
+    todayContactCount,
+    overdueContactCount,
+    contractedThisMonthCount,
+    topSales,
+  ] = await Promise.all([
+    prisma.companies.count({
+      where: {
+        ...companyWhere,
+        is_archived: false,
+      },
+    }),
 
-    totalTodayContactCount: allCompanies.filter(
-      (company) => company.next_contact_date?.toISOString().slice(0, 10) === today,
-    ).length,
+    prisma.companies.count({
+      where: {
+        ...companyWhere,
+        is_archived: false,
+        interest_level: "high",
+      },
+    }),
 
-    totalOverdueContactCount: allCompanies.filter(
-      (company) =>
-        company.next_contact_date &&
-        company.next_contact_date < todayDate &&
-        !company.is_contracted,
-    ).length,
+    prisma.contact_schedules.count({
+      where: {
+        completed: false,
+        scheduled_at: {
+          gte: startOfToday,
+          lt: endOfToday,
+        },
+      },
+    }),
 
-    totalContractCount: allCompanies.filter((company) => company.is_contracted).length,
-  };
+    prisma.contact_schedules.count({
+      where: {
+        completed: false,
+        scheduled_at: {
+          lt: startOfToday,
+        },
+      },
+    }),
+
+    prisma.companies.count({
+      where: {
+        ...companyWhere,
+        contracted_at: {
+          gte: startOfMonth,
+          lt: endOfMonth,
+        },
+      },
+    }),
+
+    prisma.contact_schedules.findMany({
+      where: {
+        completed: false,
+        scheduled_at: {
+          gte: startOfToday,
+          lt: endOfToday,
+        },
+      },
+
+      include: {
+        companies: {
+          include: {
+            users_companies_owner_idTousers: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+
+      orderBy: {
+        scheduled_at: "asc",
+      },
+
+      take: 10,
+    }),
+  ]);
 
   return NextResponse.json({
-    ...response,
-    adminSummary,
+    success: true,
+
+    data: {
+      myCompanyCount,
+
+      highInterestCount,
+
+      todayContactCount,
+
+      overdueContactCount,
+
+      contractedThisMonthCount,
+
+      topSales,
+    },
   });
 }
