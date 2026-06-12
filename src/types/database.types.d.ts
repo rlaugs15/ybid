@@ -26,8 +26,10 @@ export type Database = {
           contracted_at: string | null
           created_at: string
           id: string
-          interest_level: string
+          interest_level: Database["public"]["Enums"]["InterestLevel"]
           is_archived: boolean
+          manager_name: string | null
+          manager_phone: string | null
           memo: string | null
           name: string
           owner_id: string
@@ -47,8 +49,10 @@ export type Database = {
           contracted_at?: string | null
           created_at?: string
           id?: string
-          interest_level?: string
+          interest_level?: Database["public"]["Enums"]["InterestLevel"]
           is_archived?: boolean
+          manager_name?: string | null
+          manager_phone?: string | null
           memo?: string | null
           name: string
           owner_id: string
@@ -68,8 +72,10 @@ export type Database = {
           contracted_at?: string | null
           created_at?: string
           id?: string
-          interest_level?: string
+          interest_level?: Database["public"]["Enums"]["InterestLevel"]
           is_archived?: boolean
+          manager_name?: string | null
+          manager_phone?: string | null
           memo?: string | null
           name?: string
           owner_id?: string
@@ -427,7 +433,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      InterestLevel: "high" | "medium" | "low"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -554,6 +560,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      InterestLevel: ["high", "medium", "low"],
+    },
   },
 } as const

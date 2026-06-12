@@ -43,12 +43,15 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  console.log("PROXY USER", user?.id);
+  console.log("PATH", pathname);
+
   // 로그인 페이지 접근 처리
   if (pathname === "/login") {
     // 이미 로그인한 경우 홈으로 이동
     if (user) {
       const url = request.nextUrl.clone();
-      url.pathname = "/";
+      url.pathname = "/dashboard";
       return NextResponse.redirect(url);
     }
 

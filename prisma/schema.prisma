@@ -509,6 +509,9 @@ model companies {
   ceo_phone String?
   region    String?
 
+  manager_name  String?
+  manager_phone String?
+
   interest_level InterestLevel @default(medium)
   sales_status   String        @default("new")
   memo           String?
