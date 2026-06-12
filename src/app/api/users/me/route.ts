@@ -24,15 +24,13 @@ export async function GET() {
     },
     select: {
       id: true,
-      email: true,
       name: true,
       role: true,
-      team_id: true,
       created_at: true,
     },
   });
 
-  return NextResponse.json(user);
+  return NextResponse.json({ data: user });
 }
 
 export async function PATCH(request: NextRequest) {
