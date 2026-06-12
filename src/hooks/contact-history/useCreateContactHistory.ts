@@ -36,7 +36,6 @@ export default function useCreateContactHistory() {
       companyId: string;
       input: {
         content: string;
-        userId: string;
         nextContactDate?: string;
         nextContactMemo?: string;
       };

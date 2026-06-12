@@ -11,11 +11,13 @@ export type CreateCompanyRequest = {
   ceoPhone?: string;
   region?: string;
 
+  managerName?: string;
+  managerPhone?: string;
+
   interestLevel?: "high" | "medium" | "low";
   salesStatus?: string;
   memo?: string;
 
-  ownerId: string;
   teamId?: string | null;
 
   businessLicenses: BusinessLicenseInput[];

@@ -1,12 +1,16 @@
-import { getUser } from "@/services/actions/user.api";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 export default async function HomePage() {
-  const user = await getUser();
+  const supabase = await createClient();
 
-  if (!user) {
-    redirect("/login");
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    redirect("/dashboard");
   }
 
-  redirect("/dashboard");
+  redirect("/login");
 }
