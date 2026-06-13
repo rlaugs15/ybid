@@ -143,7 +143,16 @@ export async function GET(request: NextRequest) {
         },
       },
 
-      take: 10,
+      orderBy: [
+        {
+          companies: {
+            interest_level: "desc",
+          },
+        },
+        {
+          created_at: "asc",
+        },
+      ],
     }),
   ]);
 
