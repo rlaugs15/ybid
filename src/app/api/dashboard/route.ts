@@ -4,7 +4,7 @@ import prisma from "prisma/prisma";
 export async function GET(request: NextRequest) {
   const userId = request.nextUrl.searchParams.get("userId");
 
-  if (!userId) {
+  if (!userId || userId === "undefined") {
     return NextResponse.json(
       {
         success: false,
@@ -32,13 +32,19 @@ export async function GET(request: NextRequest) {
 
   const today = new Date();
 
-  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-
-  const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const endOfToday = new Date(startOfToday);
+  endOfToday.setDate(endOfToday.getDate() + 1);
+
+  const todayDate = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()),
+  );
 
   let companyWhere = {};
 
@@ -60,7 +66,7 @@ export async function GET(request: NextRequest) {
     todayContactCount,
     overdueContactCount,
     contractedThisMonthCount,
-    topSales,
+    todayContacts,
   ] = await Promise.all([
     prisma.companies.count({
       where: {
@@ -80,9 +86,10 @@ export async function GET(request: NextRequest) {
     prisma.contact_schedules.count({
       where: {
         completed: false,
-        scheduled_at: {
-          gte: startOfToday,
-          lt: endOfToday,
+        scheduled_at: todayDate,
+        companies: {
+          ...companyWhere,
+          is_archived: false,
         },
       },
     }),
@@ -91,7 +98,11 @@ export async function GET(request: NextRequest) {
       where: {
         completed: false,
         scheduled_at: {
-          lt: startOfToday,
+          lt: todayDate,
+        },
+        companies: {
+          ...companyWhere,
+          is_archived: false,
         },
       },
     }),
@@ -99,6 +110,7 @@ export async function GET(request: NextRequest) {
     prisma.companies.count({
       where: {
         ...companyWhere,
+        is_archived: false,
         contracted_at: {
           gte: startOfMonth,
           lt: endOfMonth,
@@ -109,26 +121,26 @@ export async function GET(request: NextRequest) {
     prisma.contact_schedules.findMany({
       where: {
         completed: false,
-        scheduled_at: {
-          gte: startOfToday,
-          lt: endOfToday,
+        scheduled_at: todayDate,
+        companies: {
+          ...companyWhere,
+          is_archived: false,
         },
       },
 
-      include: {
+      select: {
+        id: true,
+        scheduled_at: true,
+
         companies: {
-          include: {
-            users_companies_owner_idTousers: {
-              select: {
-                name: true,
-              },
-            },
+          select: {
+            id: true,
+            name: true,
+            interest_level: true,
+            manager_name: true,
+            manager_phone: true,
           },
         },
-      },
-
-      orderBy: {
-        scheduled_at: "asc",
       },
 
       take: 10,
@@ -149,7 +161,7 @@ export async function GET(request: NextRequest) {
 
       contractedThisMonthCount,
 
-      topSales,
+      todayContacts,
     },
   });
 }

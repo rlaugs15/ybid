@@ -1,5 +1,6 @@
 import { Prisma, users } from "@/generated/prisma/client";
 import { clsx, type ClassValue } from "clsx";
+import { format } from "date-fns";
 import { twMerge } from "tailwind-merge";
 import { UserRole } from "./permissions/company";
 
@@ -88,4 +89,9 @@ export function getCompanyScope(currentUser: users): Prisma.companiesWhereInput 
   return {
     owner_id: currentUser.id,
   };
+}
+
+/* 날짜 포맷 함수 */
+export function formatDate(date: string | Date) {
+  return format(new Date(date), "yyyy.MM.dd");
 }
