@@ -1,49 +1,73 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import useUpdateContactSchedule from "@/hooks/contact-schedule/useUpdateContactSchedule";
 import { formatDate, getInterestBadgeStyle } from "@/lib/utils";
 import { DashboardTodayContact } from "@/types/dashboard";
+import { useState } from "react";
+import EditContactScheduleDialog from "./EditContactScheduleDialog";
 
 type Props = {
   contact: DashboardTodayContact;
 };
 
 export default function TodayContactCard({ contact }: Props) {
+  const [open, setOpen] = useState(false);
+
+  const { mutate: updateMutation, isPending } = useUpdateContactSchedule();
+
   const company = contact.companies;
 
-  return (
-    <Card>
-      <CardContent className="flex items-center justify-between p-5">
-        <div>
-          <div className="mb-2 flex items-center gap-2">
-            <Badge className={getInterestBadgeStyle(company.interest_level)}>
-              {company.interest_level === "high"
-                ? "관심도 상"
-                : company.interest_level === "medium"
-                  ? "관심도 중"
-                  : "관심도 하"}
-            </Badge>
+  const handleComplete = () => {
+    updateMutation({
+      scheduleId: contact.id,
+      input: {
+        completed: true,
+      },
+    });
+  };
 
-            <h3 className="text-lg font-semibold">{company.name}</h3>
+  return (
+    <>
+      <Card>
+        <CardContent className="flex items-center justify-between p-5">
+          <div>
+            <div className="mb-2 flex items-center gap-2">
+              <Badge className={getInterestBadgeStyle(company.interest_level)}>
+                {company.interest_level === "high"
+                  ? "관심도 상"
+                  : company.interest_level === "medium"
+                    ? "관심도 중"
+                    : "관심도 하"}
+              </Badge>
+
+              <h3 className="text-lg font-semibold">{company.name}</h3>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              담당자: {company.manager_name ?? "-"} / {company.manager_phone ?? "-"}
+            </p>
+
+            <p className="text-sm text-muted-foreground">
+              다음 연락일: {formatDate(contact.scheduled_at)}
+            </p>
           </div>
 
-          <p className="text-sm text-muted-foreground">
-            담당자: {company.manager_name ?? "-"} / {company.manager_phone ?? "-"}
-          </p>
+          <div className="flex gap-2">
+            <Button variant="outline">상세보기</Button>
 
-          <p className="text-sm text-muted-foreground">
-            다음 연락일: {formatDate(contact.scheduled_at)}
-          </p>
-        </div>
+            <Button variant="outline" onClick={handleComplete} disabled={isPending}>
+              연락 완료
+            </Button>
 
-        <div className="flex gap-2">
-          <Button variant="outline">상세보기</Button>
+            <Button onClick={() => setOpen(true)}>일정 변경</Button>
+          </div>
+        </CardContent>
+      </Card>
 
-          <Button variant="outline">연락 완료</Button>
-
-          <Button>일정 변경</Button>
-        </div>
-      </CardContent>
-    </Card>
+      <EditContactScheduleDialog open={open} onOpenChange={setOpen} contact={contact} />
+    </>
   );
 }

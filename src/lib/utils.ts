@@ -20,6 +20,7 @@ export function safeKey(...args: (string | number | undefined | null)[]) {
     .map((v) => String(v));
 }
 
+/* 관심도에 따른 뱃지 색 변경 */
 export const getInterestBadgeStyle = (priority: "high" | "medium" | "low") => {
   switch (priority) {
     case "high":
