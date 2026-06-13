@@ -33,7 +33,7 @@ export default function CompanyForm() {
       interestLevel: "medium",
       salesStatus: "new",
 
-      nextContactDate: "",
+      scheduledAt: "",
       memo: "",
 
       businessLicenses: [
@@ -73,9 +73,9 @@ export default function CompanyForm() {
 
       businessLicenses: values.businessLicenses,
 
-      contactSchedule: values.nextContactDate
+      contactSchedule: values.scheduledAt
         ? {
-            scheduledAt: values.nextContactDate,
+            scheduledAt: values.scheduledAt,
           }
         : null,
     });
@@ -367,7 +367,7 @@ export default function CompanyForm() {
           <Field>
             <FieldLabel>다음 연락일</FieldLabel>
 
-            <Input type="date" {...form.register("nextContactDate")} />
+            <Input type="date" {...form.register("scheduledAt")} />
           </Field>
         </div>
 

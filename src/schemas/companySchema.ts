@@ -46,7 +46,7 @@ export const createCompanySchema = z.object({
 
   salesStatus: z.enum(["new", "in_progress", "reviewing", "hold", "contracted", "failed"]),
 
-  nextContactDate: z.string(),
+  scheduledAt: z.string(),
 
   memo: z.string().optional(),
 

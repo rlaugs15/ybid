@@ -8,5 +8,6 @@ export const dashboardQueries = {
       queryKey: dashboardKeys.summary(userId),
 
       queryFn: () => getDashboard(userId),
+      enabled: !!userId,
     }),
 };
