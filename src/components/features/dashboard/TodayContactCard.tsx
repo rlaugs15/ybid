@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import useUpdateContactSchedule from "@/hooks/contact-schedule/useUpdateContactSchedule";
 import { formatDate, getInterestBadgeStyle } from "@/lib/utils";
 import { DashboardTodayContact } from "@/types/dashboard";
+import Link from "next/link";
 import { useState } from "react";
 import EditContactScheduleDialog from "./EditContactScheduleDialog";
 
@@ -56,13 +57,17 @@ export default function TodayContactCard({ contact }: Props) {
           </div>
 
           <div className="flex gap-2">
-            <Button variant="outline">상세보기</Button>
+            <Link href={`/companies/${company.id}`}>
+              <Button variant="outline">상세보기</Button>
+            </Link>
 
-            <Button variant="outline" onClick={handleComplete} disabled={isPending}>
-              연락 완료
+            <Button variant="outline" onClick={() => setOpen(true)}>
+              일정 변경
             </Button>
 
-            <Button onClick={() => setOpen(true)}>일정 변경</Button>
+            <Button onClick={handleComplete} disabled={isPending}>
+              연락 완료
+            </Button>
           </div>
         </CardContent>
       </Card>
