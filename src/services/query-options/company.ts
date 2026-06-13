@@ -15,5 +15,7 @@ export const companyQueries = {
       queryKey: companyKeys.detail(companyId),
 
       queryFn: () => getCompany(companyId),
+
+      enabled: !!companyId,
     }),
 };

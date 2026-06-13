@@ -28,12 +28,16 @@ export async function GET(_: NextRequest, context: RouteContext) {
         select: {
           id: true,
           name: true,
-          email: true,
           role: true,
         },
       },
 
-      teams: true,
+      teams: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
 
       contact_histories: {
         include: {
@@ -50,6 +54,9 @@ export async function GET(_: NextRequest, context: RouteContext) {
       },
 
       contact_schedules: {
+        where: {
+          completed: false,
+        },
         orderBy: {
           scheduled_at: "asc",
         },
