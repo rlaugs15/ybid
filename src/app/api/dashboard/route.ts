@@ -42,11 +42,9 @@ export async function GET(request: NextRequest) {
   const endOfToday = new Date(startOfToday);
   endOfToday.setDate(endOfToday.getDate() + 1);
 
-  /*   const todayDate = new Date(
+  const todayDate = new Date(
     Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()),
-  ); */
-  const todayDate = new Date();
-  todayDate.setHours(0, 0, 0, 0);
+  );
 
   let companyWhere = {};
 

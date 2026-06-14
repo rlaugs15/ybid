@@ -1,4 +1,5 @@
 import { Prisma, users } from "@/generated/prisma/client";
+import { InterestLevel } from "@/types/common";
 import { clsx, type ClassValue } from "clsx";
 import { format } from "date-fns";
 import { twMerge } from "tailwind-merge";
@@ -36,6 +37,23 @@ export const getInterestBadgeStyle = (priority: "high" | "medium" | "low") => {
       return "";
   }
 };
+
+/* 관심도에 따른 글자색 변경 */
+export function getInterestTextStyle(priority: InterestLevel) {
+  switch (priority) {
+    case "high":
+      return "text-red-700";
+
+    case "medium":
+      return "text-amber-700";
+
+    case "low":
+      return "text-slate-600";
+
+    default:
+      return "";
+  }
+}
 
 /* 권한체크 함수들 */
 export function isAdmin(role: UserRole) {

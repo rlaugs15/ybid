@@ -1,3 +1,5 @@
+import { Tables } from "./database.types";
+
 export type CompanyDetail = Tables<"companies"> & {
   business_licenses: Tables<"company_business_licenses">[];
 

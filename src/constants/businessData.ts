@@ -76,3 +76,15 @@ export const BUSINESS_GROUPS = {
     categories: ["전기공사업", "소방시설공사업", "정보통신공사업"],
   },
 };
+
+export const BUSINESS_GROUP_LABELS = {
+  professional: "전문",
+  electrical: "전소통",
+  general: "종합",
+} as const;
+
+export const INTEREST_LEVEL_LABELS = {
+  high: "상",
+  medium: "중",
+  low: "하",
+} as const;
