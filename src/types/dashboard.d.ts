@@ -1,10 +1,12 @@
+import { InterestLevel } from "./common";
+
 export type DashboardTodayContact = {
   id: string;
   scheduled_at: string;
   companies: {
     id: string;
     name: string;
-    interest_level: "high" | "medium" | "low";
+    interest_level: InterestLevel;
     manager_name: string | null;
     manager_phone: string | null;
   };

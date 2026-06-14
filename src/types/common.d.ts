@@ -7,3 +7,5 @@ export type ApiResponse<T> =
       success: false;
       message: string;
     };
+
+export type InterestLevel = "high" | "medium" | "low";
