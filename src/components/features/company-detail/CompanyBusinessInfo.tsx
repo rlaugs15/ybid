@@ -38,7 +38,7 @@ export default function CompanyBusinessInfo({ business_licenses }: Props) {
 
                   <td className="px-4 py-3">{license.business_type}</td>
 
-                  <td className="px-4 py-3">{license.specialty_type ?? "-"}</td>
+                  <td className="px-4 py-3">{license.specialty_type || "-"}</td>
                 </tr>
               ))}
             </tbody>
