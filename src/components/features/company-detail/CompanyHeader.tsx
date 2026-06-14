@@ -2,10 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils";
 import { CompanyDetail } from "@/types/company-detail";
-import { Building2, Calendar, Pencil, Trash2, User } from "lucide-react";
+import { Building2, Calendar, Pencil, User } from "lucide-react";
 import Link from "next/link";
 import InterestBadge from "./InterestBadge";
 import SummaryCard from "./SummaryCard";
+import ArchiveCompanyButton from "./button/ArchiveCompanyButton";
 
 interface Props {
   company: CompanyDetail;
@@ -48,13 +49,7 @@ export default function CompanyHeader({ company }: Props) {
               </Link>
             </Button>
 
-            <Button
-              variant="outline"
-              className="h-12 rounded-2xl border-red-200 px-6 text-red-500 hover:bg-red-50"
-            >
-              <Trash2 size={16} />
-              삭제
-            </Button>
+            <ArchiveCompanyButton companyId={company.id} />
           </div>
         </div>
 
