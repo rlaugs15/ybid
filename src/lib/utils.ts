@@ -1,5 +1,8 @@
 import { Prisma, users } from "@/generated/prisma/client";
+import { CreateCompanyFormValues } from "@/schemas/companySchema";
 import { InterestLevel } from "@/types/common";
+import { CompanyDetail } from "@/types/company-detail";
+import { Tables } from "@/types/database.types";
 import { clsx, type ClassValue } from "clsx";
 import { format } from "date-fns";
 import { twMerge } from "tailwind-merge";
@@ -113,4 +116,38 @@ export function getCompanyScope(currentUser: users): Prisma.companiesWhereInput 
 /* 날짜 포맷 함수 */
 export function formatDate(date: string | Date) {
   return format(new Date(date), "yyyy.MM.dd");
+}
+
+/* 수정/등록 페이지 폼 초기값 변환 함수 */
+export function toCompanyFormValues(company: CompanyDetail): CreateCompanyFormValues {
+  return {
+    name: company.name,
+
+    ceoName: company.ceo_name ?? "",
+    ceoPhone: company.ceo_phone ?? "",
+
+    region: company.region ?? "",
+
+    managerName: company.manager_name ?? "",
+    managerPhone: company.manager_phone ?? "",
+
+    interestLevel: company.interest_level,
+
+    salesStatus: company.sales_status as CreateCompanyFormValues["salesStatus"],
+
+    scheduledAt: company.contact_schedules[0]?.scheduled_at
+      ? format(new Date(company.contact_schedules[0].scheduled_at), "yyyy-MM-dd")
+      : "",
+
+    memo: company.memo ?? "",
+
+    businessLicenses: company.business_licenses.map(
+      (license: Tables<"company_business_licenses">) => ({
+        businessGroup: license.business_group,
+        businessType: license.business_type,
+        specialtyType: license.specialty_type ?? "",
+        isPrimary: license.is_primary,
+      }),
+    ),
+  };
 }

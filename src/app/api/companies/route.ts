@@ -144,7 +144,9 @@ export async function POST(request: NextRequest) {
   return NextResponse.json(
     {
       success: true,
-      data: company,
+      data: {
+        id: company.id,
+      },
     },
     { status: 201 },
   );

@@ -1,5 +1,6 @@
 import { verifyCompanyPermission } from "@/lib/company-permission";
 import { getUser } from "@/services/actions/user/user.api";
+import { findCompany } from "@/services/server/company";
 import { UpdateCompanyRequest } from "@/types/company";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
@@ -13,56 +14,7 @@ type RouteContext = {
 export async function GET(_: NextRequest, context: RouteContext) {
   const { companyId } = await context.params;
 
-  const company = await prisma.companies.findUnique({
-    where: {
-      id: companyId,
-    },
-    include: {
-      business_licenses: {
-        orderBy: {
-          created_at: "asc",
-        },
-      },
-
-      users_companies_owner_idTousers: {
-        select: {
-          id: true,
-          name: true,
-          role: true,
-        },
-      },
-
-      teams: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-
-      contact_histories: {
-        include: {
-          users: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-        orderBy: {
-          contacted_at: "desc",
-        },
-      },
-
-      contact_schedules: {
-        where: {
-          completed: false,
-        },
-        orderBy: {
-          scheduled_at: "asc",
-        },
-      },
-    },
-  });
+  const company = await findCompany(companyId);
 
   if (!company) {
     return NextResponse.json(
@@ -98,6 +50,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
   const body = (await request.json()) as UpdateCompanyRequest;
 
+  console.log("body", body);
+
   const company = await prisma.$transaction(async (tx) => {
     const updatedCompany = await tx.companies.update({
       where: {
@@ -108,6 +62,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         ceo_name: body.ceoName,
         ceo_phone: body.ceoPhone,
         region: body.region,
+
+        manager_name: body.managerName,
+        manager_phone: body.managerPhone,
 
         interest_level: body.interestLevel,
         sales_status: body.salesStatus,
@@ -139,7 +96,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       });
     }
 
-    if (body.contactSchedule) {
+    if ("contactSchedule" in body) {
       await tx.contact_schedules.deleteMany({
         where: {
           company_id: companyId,
@@ -147,17 +104,16 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         },
       });
 
-      await tx.contact_schedules.create({
-        data: {
-          company_id: companyId,
-
-          scheduled_at: new Date(body.contactSchedule.scheduledAt),
-
-          memo: body.contactSchedule.memo,
-
-          created_by: updatedCompany.owner_id,
-        },
-      });
+      if (body.contactSchedule) {
+        await tx.contact_schedules.create({
+          data: {
+            company_id: companyId,
+            scheduled_at: new Date(body.contactSchedule.scheduledAt),
+            memo: body.contactSchedule.memo,
+            created_by: authUser.id,
+          },
+        });
+      }
     }
 
     return updatedCompany;

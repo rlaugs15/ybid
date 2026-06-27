@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import useUser from "@/hooks/user/useUser";
 import { formatDate } from "@/lib/utils";
 import { CompanyDetail } from "@/types/company-detail";
 import { Building2, Calendar, Pencil, User } from "lucide-react";
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export default function CompanyHeader({ company }: Props) {
+  const { data: me } = useUser();
   const nextSchedule = company.contact_schedules[0];
   return (
     <Card className="rounded-[32px] border border-slate-200 shadow-lg p-0">
@@ -41,16 +43,19 @@ export default function CompanyHeader({ company }: Props) {
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <Button asChild variant="outline" className="h-12 rounded-2xl px-6">
-              <Link href={`/companies/${company.id}/edit`}>
-                <Pencil size={16} />
-                수정
-              </Link>
-            </Button>
+          {/* 수정 삭제 버튼 */}
+          {me?.id === company.owner_id ? (
+            <div className="flex gap-3">
+              <Button asChild variant="outline" className="h-12 rounded-2xl px-6">
+                <Link href={`/companies/${company.id}/edit`}>
+                  <Pencil size={16} />
+                  수정
+                </Link>
+              </Button>
 
-            <ArchiveCompanyButton companyId={company.id} />
-          </div>
+              <ArchiveCompanyButton companyId={company.id} />
+            </div>
+          ) : null}
         </div>
 
         {/* 정보 카드 영역 */}

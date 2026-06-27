@@ -1,5 +1,6 @@
 "use client";
 
+import Loading from "@/components/common/Loading";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -12,75 +13,119 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { BUSINESS_GROUPS } from "@/constants/businessData";
+import useCompany from "@/hooks/companies/useCompany";
 import useCreateCompany from "@/hooks/companies/useCreateCompany";
+import useUpdateCompany from "@/hooks/companies/useUpdateCompany";
+import { toCompanyFormValues } from "@/lib/utils";
 import { CreateCompanyFormValues, createCompanySchema } from "@/schemas/companySchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 
-export default function CompanyForm() {
+export type CompanyFormMode = "create" | "edit";
+
+type CompanyFormProps = {
+  mode?: CompanyFormMode;
+};
+
+const EMPTY_VALUES: CreateCompanyFormValues = {
+  name: "",
+  ceoName: "",
+  ceoPhone: "",
+  region: "",
+  managerName: "",
+  managerPhone: "",
+  interestLevel: "medium",
+  salesStatus: "new",
+  scheduledAt: "",
+  memo: "",
+  businessLicenses: [
+    {
+      businessGroup: "",
+      businessType: "",
+      specialtyType: "",
+      isPrimary: true,
+    },
+  ],
+};
+
+export default function CompanyForm({ mode = "create" }: CompanyFormProps) {
+  const router = useRouter();
+  const params = useParams();
+
+  const companyId = mode === "edit" ? String(params.companyId) : "";
+
+  const { data: company, isPending: companyPending } = useCompany(companyId);
+
   const form = useForm<CreateCompanyFormValues>({
     resolver: zodResolver(createCompanySchema),
-
-    defaultValues: {
-      name: "",
-      ceoName: "",
-      ceoPhone: "",
-      region: "",
-
-      managerName: "",
-      managerPhone: "",
-
-      interestLevel: "medium",
-      salesStatus: "new",
-
-      scheduledAt: "",
-      memo: "",
-
-      businessLicenses: [
-        {
-          businessGroup: "",
-          businessType: "",
-          specialtyType: "",
-          isPrimary: true,
-        },
-      ],
-    },
+    defaultValues: EMPTY_VALUES,
   });
+
+  useEffect(() => {
+    if (!company) return;
+    form.reset(toCompanyFormValues(company));
+  }, [company, form]);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "businessLicenses",
   });
 
-  const { mutate: createCompanyMutation } = useCreateCompany();
+  const { mutate: createCompanyMutation, isPending: isCreating } = useCreateCompany();
+  const { mutate: updateCompanyMutation, isPending: isUpdating } = useUpdateCompany();
+
+  if (mode === "edit" && companyPending) {
+    return <Loading />;
+  }
+
+  const isPending = isCreating || isUpdating;
 
   const onSubmit = (values: CreateCompanyFormValues) => {
-    console.log("values", values);
-    createCompanyMutation({
+    const input = {
       name: values.name,
-
       ceoName: values.ceoName,
       ceoPhone: values.ceoPhone,
-
       region: values.region,
-
       managerName: values.managerName,
       managerPhone: values.managerPhone,
-
       interestLevel: values.interestLevel,
       salesStatus: values.salesStatus,
       memo: values.memo,
-
       businessLicenses: values.businessLicenses,
-
       contactSchedule: values.scheduledAt
         ? {
             scheduledAt: values.scheduledAt,
           }
         : null,
+    };
+
+    if (mode === "edit") {
+      if (!companyId) return;
+
+      updateCompanyMutation(
+        {
+          companyId: String(companyId),
+          input,
+        },
+        {
+          onSuccess: () => {
+            router.push(`/companies/${companyId}`);
+          },
+        },
+      );
+
+      return;
+    }
+
+    createCompanyMutation(input, {
+      onSuccess: ({ id }) => {
+        router.push(`/companies/${id}`);
+      },
     });
   };
-
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
       <div className="rounded-2xl border bg-card p-8 shadow-sm space-y-10">
@@ -367,7 +412,11 @@ export default function CompanyForm() {
           <Field>
             <FieldLabel>다음 연락일</FieldLabel>
 
-            <Input type="date" {...form.register("scheduledAt")} />
+            <Input
+              type="date"
+              min={format(new Date(), "yyyy-MM-dd")}
+              {...form.register("scheduledAt")}
+            />
           </Field>
         </div>
 
@@ -378,12 +427,12 @@ export default function CompanyForm() {
         </Field>
 
         <div className="flex justify-end gap-4 border-t pt-8">
-          <Button type="button" variant="outline" className="w-40">
+          <Button type="button" variant="outline" className="w-40" onClick={() => router.back()}>
             취소
           </Button>
 
-          <Button type="submit" className="w-40">
-            저장
+          <Button type="submit" className="w-40" disabled={isPending}>
+            {mode === "edit" ? "수정 저장" : "저장"}
           </Button>
         </div>
       </div>

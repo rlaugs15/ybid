@@ -42,7 +42,7 @@ export default function CompanySalesInfo({
               <div>
                 <p className="text-sm text-gray-500">관심도</p>
                 <p className={cn("mt-2 text-xl font-bold", getInterestTextStyle(interest_level))}>
-                  {INTEREST_LEVEL_LABELS[interest_level]}
+                  {INTEREST_LEVEL_LABELS[interest_level as keyof typeof INTEREST_LEVEL_LABELS]}
                 </p>
               </div>
             </div>
@@ -86,7 +86,7 @@ export default function CompanySalesInfo({
 
           {/* 계약 메모 */}
           <div className="flex gap-4 border-t p-6">
-            <FileText className="mt-1 h-6 w-6 text-emerald-500" />
+            <FileText className="h-6 w-6 text-emerald-500" />
 
             <div>
               <p className="text-sm text-gray-500">계약 메모</p>
