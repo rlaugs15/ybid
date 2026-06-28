@@ -8,7 +8,7 @@ import { formatDate, getInterestBadgeStyle } from "@/lib/utils";
 import { DashboardTodayContact } from "@/types/dashboard";
 import Link from "next/link";
 import { useState } from "react";
-import EditContactScheduleDialog from "./EditContactScheduleDialog";
+import EditContactScheduleDialog from "../contact-schedule/EditContactScheduleDialog";
 
 type Props = {
   contact: DashboardTodayContact;

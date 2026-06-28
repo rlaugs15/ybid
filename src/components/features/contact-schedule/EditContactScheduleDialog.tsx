@@ -13,7 +13,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 
 import useUpdateContactSchedule from "@/hooks/contact-schedule/useUpdateContactSchedule";
 import { getInterestBadgeStyle } from "@/lib/utils";
@@ -125,8 +124,8 @@ export default function EditContactScheduleDialog({ open, onOpenChange, contact 
             </div>
           </div>
 
-          {/* 메모 */}
-          <div className="flex gap-8">
+          {/* 메모: 추후 상세페이지에 어떻게 보여질지 고려할 것 */}
+          {/* <div className="flex gap-8">
             <label className="w-28 pt-3 text-sm font-semibold">메모</label>
 
             <div className="flex-1">
@@ -141,7 +140,7 @@ export default function EditContactScheduleDialog({ open, onOpenChange, contact 
                 {memo.length}/500
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* <div className="rounded-2xl border border-blue-100 bg-blue-50 p-5">
             <div className="mb-2 flex items-center gap-2 font-semibold text-blue-700">
