@@ -72,7 +72,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           },
         });
 
-        await tx.notifications.create({
+        /*  await tx.notifications.create({
           data: {
             type: "contract_cancel",
 
@@ -84,7 +84,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
             actor_id: authUser.id,
           },
-        });
+        }); */
 
         return canceledCompany;
       }
@@ -115,7 +115,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
       await tx.notifications.create({
         data: {
-          type: "contract",
+          type: "contract_completed",
 
           title: "계약 완료",
 

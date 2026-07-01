@@ -1,3 +1,4 @@
+import ContractButton from "@/components/common/buttons/ContractButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import useUser from "@/hooks/user/useUser";
@@ -43,7 +44,7 @@ export default function CompanyHeader({ company }: Props) {
             </div>
           </div>
 
-          {/* 수정 삭제 버튼 */}
+          {/* 수정 삭제 계약완료 버튼 */}
           {me?.id === company.owner_id ? (
             <div className="flex gap-3">
               <Button asChild variant="outline" className="h-12 rounded-2xl px-6">
@@ -54,6 +55,12 @@ export default function CompanyHeader({ company }: Props) {
               </Button>
 
               <ArchiveCompanyButton companyId={company.id} />
+
+              <ContractButton
+                companyId={company.id}
+                salesStatus={company.sales_status}
+                className="h-12 rounded-2xl px-6"
+              />
             </div>
           ) : null}
         </div>

@@ -1,12 +1,14 @@
 // app/api/companies/route.ts
 
 import { getUser } from "@/services/actions/user/user.api";
+import { InterestLevel } from "@/types/common";
 import { CreateCompanyRequest } from "@/types/company";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "prisma/prisma";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
+  console.log("searchParams", searchParams);
 
   const ownerId = searchParams.get("ownerId");
   const teamId = searchParams.get("teamId");
@@ -20,14 +22,47 @@ export async function GET(request: NextRequest) {
       is_archived: false,
       ...(ownerId && { owner_id: ownerId }),
       ...(teamId && { team_id: teamId }),
-      ...(interestLevel && { interest_level: interestLevel as "high" | "medium" | "low" }),
+      ...(interestLevel && { interest_level: interestLevel as InterestLevel }),
       ...(salesStatus && { sales_status: salesStatus }),
       ...(region && { region }),
       ...(keyword && {
         OR: [
-          { name: { contains: keyword, mode: "insensitive" } },
-          { ceo_name: { contains: keyword, mode: "insensitive" } },
-          { ceo_phone: { contains: keyword, mode: "insensitive" } },
+          {
+            name: {
+              contains: keyword,
+              mode: "insensitive",
+            },
+          },
+          {
+            ceo_name: {
+              contains: keyword,
+              mode: "insensitive",
+            },
+          },
+          {
+            ceo_phone: {
+              contains: keyword,
+              mode: "insensitive",
+            },
+          },
+          {
+            manager_name: {
+              contains: keyword,
+              mode: "insensitive",
+            },
+          },
+          {
+            manager_phone: {
+              contains: keyword,
+              mode: "insensitive",
+            },
+          },
+          {
+            region: {
+              contains: keyword,
+              mode: "insensitive",
+            },
+          },
         ],
       }),
     },

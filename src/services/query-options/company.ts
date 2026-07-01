@@ -8,6 +8,9 @@ export const companyQueries = {
       queryKey: companyKeys.list(params),
 
       queryFn: () => getCompanies(params),
+      enabled: !!params?.ownerId,
+      placeholderData: (previousData) => previousData,
+      gcTime: 0,
     }),
 
   detail: (companyId: string) =>

@@ -33,7 +33,7 @@ const salesMenus = [
   },
   {
     title: "내 업체 관리",
-    url: "/companies",
+    url: "/my-companies",
     icon: Building2,
   },
   {
